@@ -41,9 +41,7 @@ def is_bitlink(token, url):
 def main():
     load_dotenv()
     TOKEN = os.getenv("TOKEN")
-    # url = input('Введите ссылу: ')
-    # url = "https://www.google.ru/"
-    url = "https://bit.ly/3HylRIf"
+    url = input('Введите ссылу: ')
     if is_bitlink(TOKEN, url):
         parsed_url = urlparse(url)
         link = parsed_url.netloc + parsed_url.path
