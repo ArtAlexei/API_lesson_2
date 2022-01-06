@@ -1,4 +1,3 @@
-import json
 import os
 from urllib.parse import urlparse
 
@@ -9,11 +8,10 @@ from dotenv import load_dotenv
 def shorten_link(token, url):
     headers = {'Authorization': f'Bearer {token}'}
     request_url = 'https://api-ssl.bitly.com/v4/shorten'
-    data = json.dumps({"long_url": url})
-    response = requests.post(url=request_url, headers=headers, data=data)
+    param = {"long_url": url}
+    response = requests.post(url=request_url, headers=headers, json=param)
     response.raise_for_status()
-    response = json.loads(response.text)
-    bitlink = response['link']
+    bitlink = response.json()['link']
     return bitlink
 
 
@@ -22,8 +20,7 @@ def count_clicks(token, link):
     request_url = f'https://api-ssl.bitly.com/v4/bitlinks/{link}/clicks/summary'
     response = requests.get(url=request_url, headers=headers)
     response.raise_for_status()
-    response = json.loads(response.text)
-    clicks_count = response['total_clicks']
+    clicks_count = response.json()['total_clicks']
     return clicks_count
 
 
@@ -33,32 +30,30 @@ def is_bitlink(token, url):
     bitlink = parsed_url.netloc + parsed_url.path
     request_url = f'https://api-ssl.bitly.com/v4/bitlinks/{bitlink}'
     response = requests.get(url=request_url, headers=headers)
-    if response.ok:
-        return True
-    return False
+    return response.ok
 
 
 def main():
     load_dotenv()
-    TOKEN = os.getenv("TOKEN")
+    token = os.getenv("BITLY_GENERIC_ACCESS_TOKEN")
     url = input('Введите ссылу: ')
-    if is_bitlink(TOKEN, url):
+    if is_bitlink(token, url):
         parsed_url = urlparse(url)
-        link = parsed_url.netloc + parsed_url.path
+        link = f'{parsed_url.netloc}{parsed_url.path}'
         try:
-            clicks_count = count_clicks(TOKEN, link)
+            clicks_count = count_clicks(token, link)
         except requests.exceptions.HTTPError:
             print('Ошибка')
-            return
-        print('Кликов', clicks_count)
+        else:
+            print('Кликов', clicks_count)
 
     else:
         try:
-            bitlink = shorten_link(TOKEN, url)
+            bitlink = shorten_link(token, url)
         except requests.exceptions.HTTPError:
             print('Ошибка')
-            return
-        print('Битлинк', bitlink)
+        else:
+            print('Битлинк', bitlink)
 
 
 if __name__ == "__main__":
