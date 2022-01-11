@@ -1,3 +1,4 @@
+import argparse
 import os
 from urllib.parse import urlparse
 
@@ -36,7 +37,12 @@ def is_bitlink(token, url):
 def main():
     load_dotenv()
     token = os.getenv("BITLY_GENERIC_ACCESS_TOKEN")
-    url = input('Введите ссылу: ')
+
+    parser = argparse.ArgumentParser(description='make short links in bitly.com')
+    parser.add_argument('url', default=1, type=str , help='url or bitly')
+    args = parser.parse_args()
+    url=args.url
+
     if is_bitlink(token, url):
         parsed_url = urlparse(url)
         link = f'{parsed_url.netloc}{parsed_url.path}'
