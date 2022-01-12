@@ -28,7 +28,7 @@ def count_clicks(token, link):
 def is_bitlink(token, url):
     headers = {'Authorization': f'Bearer {token}'}
     parsed_url = urlparse(url)
-    bitlink = parsed_url.netloc + parsed_url.path
+    bitlink = f'{parsed_url.netloc}{parsed_url.path}'
     request_url = f'https://api-ssl.bitly.com/v4/bitlinks/{bitlink}'
     response = requests.get(url=request_url, headers=headers)
     return response.ok
@@ -39,9 +39,9 @@ def main():
     token = os.getenv("BITLY_GENERIC_ACCESS_TOKEN")
 
     parser = argparse.ArgumentParser(description='make short links in bitly.com')
-    parser.add_argument('url', default=1, type=str , help='url or bitly')
+    parser.add_argument('url', type=str, help='url or bitly')
     args = parser.parse_args()
-    url=args.url
+    url = args.url
 
     if is_bitlink(token, url):
         parsed_url = urlparse(url)
